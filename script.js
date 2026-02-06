@@ -149,3 +149,10 @@ window.logout = async () => {
         console.error("Logout Error:", e);
     }
 };
+
+// Add "Enter" key support for the message input
+document.getElementById('message-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        window.sendChatMessage();
+    }
+});
