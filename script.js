@@ -131,6 +131,11 @@ function listenForMessages() {
 }
 
 window.sendChatMessage = async () => {
+    // Add "Enter" key support for the message input
+    document.getElementById('message-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        window.sendChatMessage();
+    }
     const input = document.getElementById('message-input');
     if (!input.value) return;
     await addDoc(collection(db, "rooms", currentRoomId, "messages"), {
@@ -176,9 +181,4 @@ window.logout = async () => {
     }
 };
 
-// Add "Enter" key support for the message input
-document.getElementById('message-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        window.sendChatMessage();
-    }
-});
+
