@@ -1,8 +1,25 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-import { setDoc, doc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    updateProfile, 
+    onAuthStateChanged, 
+    signOut 
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    onSnapshot, 
+    query, 
+    orderBy, 
+    deleteDoc, 
+    getDocs, 
+    doc, 
+    getDoc, 
+    setDoc 
+} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 // 1. YOUR FIREBASE CONFIG HERE
 const firebaseConfig = {
   apiKey: "AIzaSyDqknMhQhj0ZlFpJV1mi-xguSIE7B80mtI",
