@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+import { setDoc, onSnapshot, doc, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
 // 1. YOUR FIREBASE CONFIG HERE
 const firebaseConfig = {
@@ -86,6 +87,25 @@ async function joinRoom(id, correctPass) {
     document.getElementById('room-container').classList.add('hidden');
     document.getElementById('chat-container').classList.remove('hidden');
     listenForMessages();
+  
+    async function enterPresence(roomId) {
+      const presenceRef = doc(db, "rooms", roomId, "presence", currentUser.uid);
+      await setDoc(presenceRef, {
+        name: currentUser.displayName || "Anonymous",
+        lastSeen: Date.now()
+      });
+      
+      // Listen for other users in this room
+      onSnapshot(collection(db, "rooms", roomId, "presence"), (snapshot) => {
+        const userListUI = document.getElementById('user-list');
+        userListUI.innerHTML = '';
+        snapshot.forEach(userDoc => {
+            const li = document.createElement('li');
+            li.innerText = userDoc.data().name;
+            userListUI.appendChild(li);
+        });
+      });
+    }
 }
 
 // --- CHAT LOGIC ---
@@ -133,7 +153,13 @@ window.backToRooms = () => {
     currentRoomId = null; // Reset the current room
     document.getElementById('chat-container').classList.add('hidden');
     document.getElementById('room-container').classList.remove('hidden');
-    
+    const originalBackToRooms = window.backToRooms;
+    window.backToRooms = async () => {
+      if (currentRoomId && currentUser) {
+        await deleteDoc(doc(db, "rooms", currentRoomId, "presence", currentUser.uid));
+      }
+      originalBackToRooms(); // Call the original navigation logic
+    };
     // Optional: Refresh the page logic or stop the listener if needed
     // For a simple app, hiding the UI is usually enough.
 };
