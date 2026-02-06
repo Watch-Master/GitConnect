@@ -9,3 +9,9 @@ button:hover { background: #0056b3; }
 .timestamp { font-size: 0.7rem; color: #888; margin-right: 5px; }
 .admin-only { background: #dc3545; }
 .logout-btn { background: #6c757d; margin-top: 10px; }
+.chat-layout { display: flex; width: 600px; height: 500px; padding: 0; overflow: hidden; }
+.sidebar { width: 150px; background: #f8f9fa; border-right: 1px solid #ddd; padding: 10px; text-align: left; }
+.chat-main { flex-grow: 1; display: flex; flex-direction: column; padding: 15px; }
+#user-list { list-style: none; padding: 0; font-size: 0.85rem; color: #333; }
+#user-list li { padding: 5px 0; border-bottom: 1px solid #eee; }
+#user-list li::before { content: "● "; color: #28a745; } /* Green online dot */
