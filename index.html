@@ -30,16 +30,22 @@
             <button class="logout-btn" onclick="logout()">Logout</button>
         </div>
 
-        <div id="chat-container" class="card hidden">
-            <div class="chat-header">
-                <span id="active-room-name">Room</span>
-                <button id="clear-btn" class="admin-only hidden" onclick="clearCurrentChat()">Clear Chat</button>
-                <button onclick="backToRooms()">Exit Room</button>
+        <div id="chat-container" class="card chat-layout hidden">
+            <div class="sidebar">
+                <h4>Online</h4>
+                <ul id="user-list"></ul>
             </div>
-            <div id="chat-display"></div>
-            <div class="chat-input">
-                <input type="text" id="message-input" placeholder="Type a message...">
-                <button onclick="sendChatMessage()">Send</button>
+            <div class="chat-main">
+                <div class="chat-header">
+                    <span id="active-room-name">Room</span>
+                    <button id="clear-btn" class="admin-only hidden" onclick="clearCurrentChat()">Clear Chat</button>
+                    <button onclick="backToRooms()">Exit Room</button>
+                </div>
+                <div id="chat-display"></div>
+                <div class="chat-input">
+                    <input type="text" id="message-input" placeholder="Type a message...">
+                    <button onclick="sendChatMessage()">Send</button>
+                </div>
             </div>
         </div>
     </div>
