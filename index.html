@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudChat Hub</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="auth-container" class="card">
+            <h2>Welcome to CloudChat</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <input type="text" id="display-name" placeholder="Display Name (New Users)">
+            <div class="btn-group">
+                <button onclick="handleLogin()">Login</button>
+                <button onclick="handleSignUp()">Sign Up</button>
+            </div>
+        </div>
+
+        <div id="room-container" class="card hidden">
+            <h3>Choose a Room</h3>
+            <div id="room-list"></div>
+            <hr>
+            <h4>Create New Room</h4>
+            <input type="text" id="new-room-name" placeholder="Room Name">
+            <input type="password" id="new-room-pass" placeholder="Room Password">
+            <button onclick="createNewRoom()">Create & Join</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="chat-container" class="card hidden">
+            <div class="chat-header">
+                <span id="active-room-name">Room</span>
+                <button id="clear-btn" class="admin-only hidden" onclick="clearCurrentChat()">Clear Chat</button>
+                <button onclick="backToRooms()">Exit Room</button>
+            </div>
+            <div id="chat-display"></div>
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
