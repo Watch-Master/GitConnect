@@ -125,3 +125,27 @@ window.clearCurrentChat = async () => {
     const msgs = await getDocs(collection(db, "rooms", currentRoomId, "messages"));
     msgs.forEach(async (m) => await deleteDoc(doc(db, "rooms", currentRoomId, "messages", m.id)));
 };
+
+// --- NAVIGATION & LOGOUT ---
+
+// Fix for the "Exit Room" button
+window.backToRooms = () => {
+    currentRoomId = null; // Reset the current room
+    document.getElementById('chat-container').classList.add('hidden');
+    document.getElementById('room-container').classList.remove('hidden');
+    
+    // Optional: Refresh the page logic or stop the listener if needed
+    // For a simple app, hiding the UI is usually enough.
+};
+
+// Fix for the "Logout" button
+window.logout = async () => {
+    try {
+        await signOut(auth);
+        // The onAuthStateChanged listener in the script will 
+        // automatically handle hiding the room container.
+        alert("Logged out successfully");
+    } catch (e) {
+        console.error("Logout Error:", e);
+    }
+};
