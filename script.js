@@ -18,7 +18,7 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let currentRoomId = null;
-const MAIN_ADMIN_UID = "ajngu6ucLed3y8IWqFH3vhBgxt13"; 
+const MAIN_ADMIN_UID = "rcXrJhgQs6Tf5tX0eRkAoHKSj2u1"; 
 
 // --- AUTH ---
 window.handleSignUp = async () => {
