@@ -1,26 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword, 
-    signInWithEmailAndPassword, 
-    updateProfile, 
-    onAuthStateChanged, 
-    signOut 
-} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    onSnapshot, 
-    query, 
-    orderBy, 
-    deleteDoc, 
-    getDocs, 
-    doc, 
-    getDoc, 
-    setDoc 
-} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-// 1. YOUR FIREBASE CONFIG HERE
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, getDocs, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDqknMhQhj0ZlFpJV1mi-xguSIE7B80mtI",
   authDomain: "gitconnect-67e83.firebaseapp.com",
@@ -35,12 +16,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Global State
 let currentUser = null;
 let currentRoomId = null;
 const MAIN_ADMIN_UID = "ajngu6ucLed3y8IWqFH3vhBgxt13"; 
 
-// --- AUTH FUNCTIONS ---
+// --- AUTH ---
 window.handleSignUp = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
@@ -55,7 +35,9 @@ window.handleSignUp = async () => {
 window.handleLogin = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) { alert(e.message); }
 };
 
 onAuthStateChanged(auth, (user) => {
@@ -70,7 +52,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- ROOM LOGIC ---
+// --- ROOMS ---
 async function loadRooms() {
     const q = query(collection(db, "rooms"));
     onSnapshot(q, (snapshot) => {
@@ -103,17 +85,21 @@ async function joinRoom(id, correctPass) {
     currentRoomId = id;
     document.getElementById('room-container').classList.add('hidden');
     document.getElementById('chat-container').classList.remove('hidden');
+    document.getElementById('active-room-name').innerText = "Room: " + id;
+    
     listenForMessages();
-  
-    async function enterPresence(roomId) {
-      const presenceRef = doc(db, "rooms", roomId, "presence", currentUser.uid);
-      await setDoc(presenceRef, {
+    enterPresence(id);
+}
+
+// --- PRESENCE ---
+async function enterPresence(roomId) {
+    const presenceRef = doc(db, "rooms", roomId, "presence", currentUser.uid);
+    await setDoc(presenceRef, {
         name: currentUser.displayName || "Anonymous",
         lastSeen: Date.now()
-      });
-      
-      // Listen for other users in this room
-      onSnapshot(collection(db, "rooms", roomId, "presence"), (snapshot) => {
+    });
+    
+    onSnapshot(collection(db, "rooms", roomId, "presence"), (snapshot) => {
         const userListUI = document.getElementById('user-list');
         userListUI.innerHTML = '';
         snapshot.forEach(userDoc => {
@@ -121,8 +107,7 @@ async function joinRoom(id, correctPass) {
             li.innerText = userDoc.data().name;
             userListUI.appendChild(li);
         });
-      });
-    }
+    });
 }
 
 // --- CHAT LOGIC ---
@@ -139,22 +124,18 @@ function listenForMessages() {
         display.scrollTop = display.scrollHeight;
     });
 
-    // Check if current user is admin to show "Clear Chat"
     getDoc(doc(db, "rooms", currentRoomId)).then(docSnap => {
         if (currentUser.uid === MAIN_ADMIN_UID || docSnap.data().adminId === currentUser.uid) {
             document.getElementById('clear-btn').classList.remove('hidden');
+        } else {
+            document.getElementById('clear-btn').classList.add('hidden');
         }
     });
 }
 
 window.sendChatMessage = async () => {
-    // Add "Enter" key support for the message input
-    document.getElementById('message-input').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        window.sendChatMessage();
-    }
     const input = document.getElementById('message-input');
-    if (!input.value) return;
+    if (!input.value.trim()) return;
     await addDoc(collection(db, "rooms", currentRoomId, "messages"), {
         text: input.value,
         user: currentUser.displayName || "Anonymous",
@@ -163,39 +144,33 @@ window.sendChatMessage = async () => {
     input.value = "";
 };
 
+// Global listener for Enter Key
+document.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && currentRoomId) {
+        window.sendChatMessage();
+    }
+});
+
 window.clearCurrentChat = async () => {
+    if(!confirm("Clear all messages?")) return;
     const msgs = await getDocs(collection(db, "rooms", currentRoomId, "messages"));
     msgs.forEach(async (m) => await deleteDoc(doc(db, "rooms", currentRoomId, "messages", m.id)));
 };
 
-// --- NAVIGATION & LOGOUT ---
-
-// Fix for the "Exit Room" button
+// --- NAVIGATION ---
 window.backToRooms = async () => {
-    currentRoomId = null; // Reset the current room
+    if (currentRoomId && currentUser) {
+        await deleteDoc(doc(db, "rooms", currentRoomId, "presence", currentUser.uid));
+    }
+    currentRoomId = null;
     document.getElementById('chat-container').classList.add('hidden');
     document.getElementById('room-container').classList.remove('hidden');
-    const originalBackToRooms = window.backToRooms;
-    window.backToRooms = async () => {
-      if (currentRoomId && currentUser) {
-        await deleteDoc(doc(db, "rooms", currentRoomId, "presence", currentUser.uid));
-      }
-      originalBackToRooms(); // Call the original navigation logic
-    };
-    // Optional: Refresh the page logic or stop the listener if needed
-    // For a simple app, hiding the UI is usually enough.
 };
 
-// Fix for the "Logout" button
 window.logout = async () => {
     try {
+        if (currentRoomId) await window.backToRooms();
         await signOut(auth);
-        // The onAuthStateChanged listener in the script will 
-        // automatically handle hiding the room container.
-        alert("Logged out successfully");
-    } catch (e) {
-        console.error("Logout Error:", e);
-    }
+        alert("Logged out!");
+    } catch (e) { console.error(e); }
 };
-
-
