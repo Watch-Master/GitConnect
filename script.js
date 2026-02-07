@@ -52,7 +52,7 @@ window.handleSignUp = async () => {
     } catch (e) { alert(e.message); }
 };
 
-window.handleLogin = () => {
+window.handleLogin = async () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
     signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
@@ -171,7 +171,7 @@ window.clearCurrentChat = async () => {
 // --- NAVIGATION & LOGOUT ---
 
 // Fix for the "Exit Room" button
-window.backToRooms = () => {
+window.backToRooms = async () => {
     currentRoomId = null; // Reset the current room
     document.getElementById('chat-container').classList.add('hidden');
     document.getElementById('room-container').classList.remove('hidden');
